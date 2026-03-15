@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>MOSCU RP Staff Panel</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(180deg,#020617,#071a35,#020617);
+color:white;
+padding:40px;
+}
+
+h1{
+text-align:center;
+color:#5ed8ff;
+margin-bottom:30px;
+}
+
+.container{
+max-width:1400px;
+margin:auto;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:#0b1b34;
+box-shadow:0 0 25px rgba(0,140,255,0.2);
+}
+
+th{
+background:#0f2a55;
+padding:14px;
+color:#7ed7ff;
+font-size:14px;
+}
+
+td{
+text-align:center;
+padding:10px;
+border-top:1px solid #102a52;
+}
+
+td:first-child{
+text-align:left;
+font-weight:bold;
+padding-left:15px;
+color:#9ee4ff;
+}
+
+/* SWITCH */
+
+.switch{
+position:relative;
+display:inline-block;
+width:44px;
+height:22px;
+}
+
+.switch input{
+display:none;
+}
+
+.slider{
+position:absolute;
+cursor:pointer;
+top:0;
+left:0;
+right:0;
+bottom:0;
+background:#1c2c45;
+border-radius:20px;
+transition:.3s;
+}
+
+.slider:before{
+position:absolute;
+content:"";
+height:16px;
+width:16px;
+left:3px;
+bottom:3px;
+background:white;
+transition:.3s;
+border-radius:50%;
+}
+
+input:checked + .slider{
+background:#00a2ff;
+}
+
+input:checked + .slider:before{
+transform:translateX(22px);
+}
+
+/* BUTTONS */
+
+button{
+padding:8px 14px;
+border:none;
+background:#0077ff;
+color:white;
+cursor:pointer;
+font-size:13px;
+border-radius:5px;
+margin:3px;
+}
+
+button:hover{
+background:#009dff;
+}
+
+textarea{
+margin-top:25px;
+width:100%;
+height:320px;
+background:#020617;
+color:#00e1ff;
+border:1px solid #1a3c6e;
+padding:15px;
+font-family:monospace;
+}
+
+.top-buttons{
+margin-top:20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>Staff Permission Panel</h1>
+
+<div class="container">
+
+<table id="tabla">
+<tr>
+<th>Rango</th>
+<th>Noclip</th>
+<th>Revive</th>
+<th>Goto</th>
+<th>Bring</th>
+<th>Car</th>
+<th>DV</th>
+<th>PedMenu</th>
+<th>Jail</th>
+<th>GiveItem</th>
+<th>Acción</th>
+</tr>
+</table>
+
+<div class="top-buttons">
+<button onclick="generar()">Generar Config</button>
+<button onclick="copiar()">Copiar Config</button>
+</div>
+
+<textarea id="output"></textarea>
+
+</div>
+
+<script>
+
+const ranks=[
+"founder",
+"ceo",
+"staffmanager",
+"directorgeneral",
+"headstaff",
+"high",
+"mid",
+"low",
+"sop"
+]
+
+const perms=[
+"noclip",
+"revivir",
+"goto",
+"bring",
+"car",
+"dv",
+"pedmenu",
+"jail",
+"giveitem"
+]
+
+const tabla=document.getElementById("tabla")
+
+ranks.forEach(rank=>{
+
+let row=document.createElement("tr")
+
+let name=document.createElement("td")
+name.innerText=rank
+row.appendChild(name)
+
+perms.forEach(p=>{
+
+let td=document.createElement("td")
+
+let label=document.createElement("label")
+label.className="switch"
+
+let input=document.createElement("input")
+input.type="checkbox"
+input.dataset.rank=rank
+input.dataset.perm=p
+
+let span=document.createElement("span")
+span.className="slider"
+
+label.appendChild(input)
+label.appendChild(span)
+
+td.appendChild(label)
+row.appendChild(td)
+
+})
+
+let accion=document.createElement("td")
+
+let activar=document.createElement("button")
+activar.innerText="Activar"
+
+activar.onclick=function(){
+document.querySelectorAll(`input[data-rank="${rank}"]`).forEach(el=>{
+el.checked=true
+})
+}
+
+let desactivar=document.createElement("button")
+desactivar.innerText="Off"
+
+desactivar.onclick=function(){
+document.querySelectorAll(`input[data-rank="${rank}"]`).forEach(el=>{
+el.checked=false
+})
+}
+
+accion.appendChild(activar)
+accion.appendChild(desactivar)
+
+row.appendChild(accion)
+
+tabla.appendChild(row)
+
+})
+
+function generar(){
+
+let txt="Config.StaffPermisos = {\n\n"
+
+ranks.forEach(rank=>{
+
+txt+=`    ${rank} = {\n`
+
+perms.forEach(p=>{
+
+let el=document.querySelector(`input[data-rank="${rank}"][data-perm="${p}"]`)
+let val=el.checked ? "true" : "false"
+
+if(p==="goto"){
+txt+=`        ["goto"]=${val},\n`
+}else{
+txt+=`        ${p}=${val},\n`
+}
+
+})
+
+txt+="    },\n\n"
+
+})
+
+txt+="}"
+
+document.getElementById("output").value=txt
+
+}
+
+function copiar(){
+
+let textarea=document.getElementById("output")
+
+textarea.select()
+textarea.setSelectionRange(0,99999)
+
+navigator.clipboard.writeText(textarea.value)
+
+alert("Config copiada!")
+}
+
+</script>
+
+</body>
+</html>
